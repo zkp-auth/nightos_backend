@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from apps.common.models import TimeStampedModel
 
 # Create your models here.
 class UserManager(BaseUserManager):
@@ -35,7 +36,7 @@ class UserManager(BaseUserManager):
 
         return self.creat_user(email, password, **extra_fields)
 
-class CustomUser(AbstractBaseUser, PermissionsMixin):
+class CustomUser(TimeStampedModel, AbstractBaseUser, PermissionsMixin):
     """
     Custom user model for NightOS
     Email is used as the unique identifier for authentication.
@@ -56,9 +57,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     objects = UserManager()
 
