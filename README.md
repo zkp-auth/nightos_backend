@@ -1,6 +1,6 @@
-# NightOps Backend
+# NightOS Backend
 
-NightOps is a backend platform designed to manage DJ bookings and operational workflows for nightlife venues.
+NightOS is a backend platform designed to manage DJ bookings and operational workflows for nightlife venues.
 
 The goal is to replace manual processes (paper, spreadsheets, WhatsApp follow-ups) with a structured, reliable, and scalable system.
 
