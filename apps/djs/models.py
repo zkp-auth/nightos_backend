@@ -41,17 +41,19 @@ class DJ(TimeStampedModel):
 
     full_name = models.CharField(
         max_length=150,
-        help_text="Legal or Full_name of the DJ.",
+        help_text="Legal or full name of the DJ.",
     )
     stage_name = models.CharField(
         max_length=150,
         unique=True,
+        blank=True,
+        null=True,
         help_text="Public/stage name used for events.",
     )
     phone = models.CharField(
         max_length=20,
         blank=True,
-        help_text="Primary contact number (used for Whatsapp communication).",
+        help_text="Primary contact number, often used for Whatsapp communication.",
     )
     email = models.EmailField(
         blank=True,
@@ -69,7 +71,7 @@ class DJ(TimeStampedModel):
     )
     is_active = models.BooleanField(
         default=True,
-        help_text="Deactivate DJ without deleting historical bookings.",
+        help_text="Deactivate the DJ without deleting historical bookings.",
     )
 
     class Meta:
