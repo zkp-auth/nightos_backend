@@ -1,0 +1,53 @@
+# macOS
+.DS_Store
+
+# Python compiled files and caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.env/
+.venv/
+env/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+wheelhouse/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type checkers / caches
+.mypy_cache/
+.pyre/
+
+# IDEs / editors
+.idea/
+.vscode/
+
+# Logs and runtime files
+*.log
+*.sql
+*.sqlite3
+celerybeat-schedule
+
+# Secrets / env files
+.env
+.env.local
+secrets.env
+*.pem
+*.key
+
+# C extensions / compiled artifacts
+*.so
+
+# Documentation build
+*.pyc
