@@ -5,7 +5,7 @@ from .models import Venue
 @admin.register(Venue)
 class VenueAdmin(admin.ModelAdmin):
     """
-    Admin configuration for venue management
+    Admin configuration for venues management
     """
 
     list_display = ["name", "city", "slug", "created_at"]

@@ -23,9 +23,11 @@ INSTALLED_APPS = [
     "django_filters",
 
     "apps.accounts",
-    "apps.venue",
+    "apps.venues",
     "apps.djs",
     "apps.bookings",
+    "apps.booking_contact_log",
+    "apps.booking_status_history",
     "apps.audit",
 ]
 
