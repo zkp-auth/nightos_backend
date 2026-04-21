@@ -55,6 +55,11 @@ def create_booking(
 
     The transaction ensures the booking and its audit entry are saved together.
     """
+
+    if venue is None:
+        raise ValueError("Venue is required to create a booking.")
+    if booking_date is None:
+        raise ValueError("Booking date is required to create a booking.")
     booking = Booking.objects.create(
         venue=venue,
         booking_date=booking_date,
