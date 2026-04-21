@@ -33,6 +33,11 @@ class Venue(TimeStampedModel):
         blank=True,
         help_text="Timezone of the venues, used for scheduling and date/time logic.",
     )
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Disable a venue without deleting historical data."
+    )
+
 
     class Meta:
         db_table = "venues"
