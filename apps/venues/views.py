@@ -10,7 +10,7 @@ class VenueViewSet(viewsets.ModelViewSet):
     API endpoint for managing venues.
     """
 
-    queryset = Venue.objects.all()
+    queryset = Venue.objects.filter(is_active=True)
     serializer_class = VenueSerializer
     permission_classes = [IsAdminOrManager]
     filterset_fields = ["is_active", "city"]
