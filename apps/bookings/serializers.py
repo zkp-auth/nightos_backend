@@ -201,6 +201,27 @@ class BookingStatusHistorySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+class BookingContactLogSerializer(serializers.ModelSerializer):
+    """
+    Read serializer for booking contact logs.
+    """
+    contacted_by_email = serializers.EmailField(source="contacted_by.email", read_only=True)
+
+    class Meta:
+        model = BookingContactLog
+        fields = [
+            "id",
+            "booking",
+            "contact_type",
+            "contacted_by",
+            "contacted_by_email",
+            "contact_date",
+            "outcome",
+            "notes",
+            "created_at",
+        ]
+        read_only_fields = fields
+
 class CreateBookingContactLogSerializer(serializers.Serializer):
     """
     Input serializer for creating a booking contact log.

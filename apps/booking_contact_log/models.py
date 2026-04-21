@@ -57,10 +57,11 @@ class BookingContactLog(models.Model):
         blank=True,
         help_text="Additional notes about the contact attempt, such as details of the conversation or next steps."
     )
-    contacted_at = models.DateTimeField(
+    created_at = models.DateTimeField(
         auto_now_add=True,
-        help_text="Date and time when the contact log entry was recorded."
+        help_text="Date and time when the contact log entry was created."
     )
+
     class Meta:
         db_table = "booking_contact_logs"
         ordering = ["-contact_date"]
