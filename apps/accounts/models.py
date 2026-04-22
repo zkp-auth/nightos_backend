@@ -12,7 +12,7 @@ class UserManager(BaseUserManager):
     because it's more practical for internal business tools.
     """
 
-    def creat_user(self, email, password=None, **extra_fields):
+    def create_user(self, email, password=None, **extra_fields):
         """Create and return a regular user"""
         if not email:
             raise ValueError('The Email field must be set')
@@ -34,7 +34,7 @@ class UserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
 
-        return self.creat_user(email, password, **extra_fields)
+        return self.create_user(email, password, **extra_fields)
 
 class CustomUser(TimeStampedModel, AbstractBaseUser, PermissionsMixin):
     """

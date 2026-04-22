@@ -12,7 +12,7 @@ class AuditLog(TimeStampedModel):
     status of key business entities like bookings and DJs.
     """
 
-    class ActionTypes(models.TextChoices):
+    class ActionType(models.TextChoices):
         CREATE = "create", "Create"
         UPDATE = "update", "Update"
         DELETE = "delete", "Delete"
@@ -30,7 +30,7 @@ class AuditLog(TimeStampedModel):
     )
     action_type = models.CharField(
         max_length=30,
-        choices=ActionTypes.choices,
+        choices=ActionType.choices,
         help_text="Type of action performed by the user."
     )
     target_model = models.CharField(
