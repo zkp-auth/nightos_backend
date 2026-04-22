@@ -1,10 +1,113 @@
 from typing import Any
 from django.db import transaction
+from datetime import datetime, timedelta
 
 from apps.audit.models import AuditLog
 from  apps.bookings.models import Booking
 from apps.booking_status_history.models import BookingStatusHistory
 from apps.booking_contact_log.models import BookingContactLog
+from apps.bookings.exceptions import BookingConflictError
+
+def _build_booking_interval(booking_date, start_time, end_time):
+    """
+    Build normalized datetime boundaries for a booking interval.
+
+    If end_time is earlier than or equal to start_time, we assume
+    the booking crosses midnight into the next day.
+    """
+    if start_time is None or end_time is None:
+        return None, None
+
+    start_dt = datetime.combine(booking_date, start_time)
+    end_dt = datetime.combine(booking_date, end_time)
+
+    if end_dt <= start_dt:
+        end_dt += timedelta(days=1)
+
+    return start_dt, end_dt
+
+def _intervals_overlap(start_a, end_a, start_b, end_b):
+    """
+    Return True if two datetime intervals overlap.
+    """
+    return start_a < end_b and start_b < end_a
+
+def validate_booking_conflicts(
+        *,
+        venue,
+        booking_date,
+        start_time=None,
+        end_time=None,
+        dj=None,
+        exclude_booking_id=None,
+):
+    """
+    Validate that a booking does not conflict with existing venue or DJ bookings.
+
+    Rules:
+    - A venue cannot have overlapping bookings at the same time.
+    - A DJ cannot be assigned to overlapping bookings at the same time.
+    Bookings without a full time range are skipped from overlap checking for now.
+    """
+    if venue is None:
+        raise ValueError("A venue is required for conflict validation.")
+
+    # If one or both times are missing, skip overlap validation for MVP.
+    # The system can still track the booking, but conflict precision is limited.
+    if start_time is None and end_time is None:
+        return
+
+    new_start, new_end = _build_booking_interval(booking_date, start_time, end_time)
+
+    existing_bookings = Booking.objects.filter(
+        booking_date=booking_date,
+    ).exclude(status=Booking.Status.CANCELLED)
+
+    if exclude_booking_id is not None:
+        existing_bookings = existing_bookings.exclude(id=exclude_booking_id)
+
+    # Venue conflict check
+    venue_bookings = existing_bookings.filter(venue=venue)
+
+    for existing in venue_bookings:
+        if existing.start_time is None or existing.end_time is None:
+            continue
+
+        existing_start, existing_end = _build_booking_interval(
+            existing.booking_date,
+            existing.start_time,
+            existing.end_time
+        )
+
+        if _intervals_overlap(new_start, new_end, existing_start, existing_end):
+            raise BookingConflictError(
+                f"Venue conflict detected: '{venue.name}' already has a booking"
+                f"overlapping {booking_date} {start_time}-{end_time}."
+            )
+
+    # DJ conflict check
+    if dj is not None:
+        dj_bookings = Booking.objects.filter(dj=dj)
+
+        for existing in dj_bookings:
+            if existing.start_time is None or existing.end_time is None:
+                continue
+
+            existing_start, existing_end = _build_booking_interval(
+                existing.booking_date,
+                existing.start_time,
+                existing.end_time,
+            )
+
+            if _intervals_overlap(new_start, new_end, existing_start, existing_end):
+                dj_name = existing.dj.stage_name if existing.dj else "Selected DJ"
+                raise BookingConflictError(
+                    f"DJ conflict detected: '{dj_name}' is already booked for an overlapping time slot."
+                )
+
+
+
+
 
 def create_audit_log(
         *,
@@ -60,6 +163,15 @@ def create_booking(
         raise ValueError("Venue is required to create a booking.")
     if booking_date is None:
         raise ValueError("Booking date is required to create a booking.")
+
+    validate_booking_conflicts(
+        venue=venue,
+        booking_date=booking_date,
+        start_time=start_time,
+        end_time=end_time,
+        dj=dj,
+    )
+
     booking = Booking.objects.create(
         venue=venue,
         booking_date=booking_date,
@@ -107,6 +219,22 @@ def update_booking(
     """
     old_data = {}
     new_data = {}
+
+    # Determine the final values after update, even if some fields are omitted.
+    final_venue = fields.get("venue", booking.venue)
+    final_booking_date = fields.get("booking_date", booking.booking_date)
+    final_start_time = fields.get("start_time", booking.start_time)
+    final_end_time = fields.get("end_time", booking.end_time)
+    final_dj = fields.get("dj", booking.dj)
+
+    validate_booking_conflicts(
+        venue=final_venue,
+        booking_date=final_booking_date,
+        start_time=final_start_time,
+        end_time=final_end_time,
+        dj=final_dj,
+        exclude_booking_id=booking.id,
+    )
 
     for field_name, new_value in fields.items():
         old_value = getattr(booking, field_name)

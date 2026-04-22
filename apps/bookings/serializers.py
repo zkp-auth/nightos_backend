@@ -9,6 +9,8 @@ from apps.bookings.services import (
     create_booking_contact_log,
     update_booking
 )
+from apps.bookings.exceptions import BookingConflictError
+
 from apps.djs.models import DJ
 from apps.djs.serializers import DJSerializer
 from apps.venues.models import Venue
@@ -87,20 +89,22 @@ class CreateBookingSerializer(serializers.Serializer):
         request = self.context.get("request")
         user = request.user if request else None
         ipaddress = self._get_client_ip()
-
-        return create_booking(
-            venue=validated_data["venue"],
-            booking_date=validated_data["booking_date"],
-            start_time=validated_data.get("start_time"),
-            end_time=validated_data.get("end_time"),
-            dj=validated_data.get("dj"),
-            event_title=validated_data.get("event_title", ""),
-            status=validated_data.get("status", Booking.Status.TO_BOOK),
-            notes=validated_data.get("notes", ""),
-            unusual_hours=validated_data.get("unusual_hours", False),
-            created_by=user,
-            ip_address=ipaddress,
-        )
+        try:
+            return create_booking(
+                venue=validated_data["venue"],
+                booking_date=validated_data["booking_date"],
+                start_time=validated_data.get("start_time"),
+                end_time=validated_data.get("end_time"),
+                dj=validated_data.get("dj"),
+                event_title=validated_data.get("event_title", ""),
+                status=validated_data.get("status", Booking.Status.TO_BOOK),
+                notes=validated_data.get("notes", ""),
+                unusual_hours=validated_data.get("unusual_hours", False),
+                created_by=user,
+                ip_address=ipaddress,
+            )
+        except BookingConflictError as exc:
+            raise serializers.ValidationError({"detail": str(exc)})
 
     def _get_client_ip(self):
         request = self.context.get("request")
@@ -127,17 +131,19 @@ class UpdateBookingSerializer(serializers.Serializer):
     notes = serializers.CharField(required=False, allow_blank=True)
     unusual_hours = serializers.BooleanField(required=False)
 
-    def create(self, instance, validated_data):
+    def update(self, instance, validated_data):
         request = self.context.get("request")
         user = request.user if request else None
         ipaddress = self._get_client_ip()
-
-        return update_booking(
-            booking=instance,
-            updated_by=user,
-            ip_address=ipaddress,
-            **validated_data
-        )
+        try:
+            return update_booking(
+                booking=instance,
+                updated_by=user,
+                ip_address=ipaddress,
+                **validated_data
+            )
+        except BookingConflictError as exc:
+            raise serializers.ValidationError({"detail": str(exc)})
 
     def _get_client_ip(self):
         request = self.context.get("request")
