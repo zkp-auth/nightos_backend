@@ -1,4 +1,7 @@
+from urllib import response
+
 import pytest
+from rest_framework.test import APIClient
 
 from apps.accounts.models import CustomUser
 from apps.djs.models import DJ, Genre
@@ -70,3 +73,22 @@ def second_dj(db):
         email="djsarah@test.com",
         is_active=True,
     )
+
+@pytest.fixture
+def api_client():
+    return APIClient()
+
+@pytest.fixture
+def authenticated_client(user):
+    client = APIClient()
+    response = client.post(
+        "/api/auth/login/",
+        {
+            "email":user.email,
+            "password":"StrongPassword123",
+        }
+    )
+    assert response.status_code == 200
+    # login_successful = client.login(email=user.email, password="StrongPassword123")
+    # assert login_successful is True
+    return client
