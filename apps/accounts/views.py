@@ -14,8 +14,8 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        email = request.data("email")
-        password = request.data("password")
+        email = request.data.get("email")
+        password = request.data.get("password")
 
         if not email or not password:
             return Response(
@@ -65,6 +65,5 @@ class CurrentUserView(APIView):
     def get(self, request):
         serializer = CustomUserSerializer(request.user)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 

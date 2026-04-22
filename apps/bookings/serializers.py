@@ -227,7 +227,7 @@ class CreateBookingContactLogSerializer(serializers.Serializer):
     Input serializer for creating a booking contact log.
     """
     contact_type = serializers.ChoiceField(choices=BookingContactLog.ContactType.choices)
-    contact_date = serializers.DateTimeField()
+    contact_date = serializers.DateField()
     outcome = serializers.ChoiceField(choices=BookingContactLog.Outcome.choices)
     notes = serializers.CharField(required=False, allow_blank=True)
 
@@ -255,8 +255,5 @@ class CreateBookingContactLogSerializer(serializers.Serializer):
         if forwarded_for:
             return forwarded_for.split(",")[0].strip()
         return request.META.get("REMOTE_ADDR")
-
-
-
 
 

@@ -12,6 +12,7 @@ from .serializers import (
     BookingSerializer,
     BookingStatusHistorySerializer,
     ChangeBookingStatusSerializer,
+    CreateBookingContactLogSerializer,
     CreateBookingSerializer,
     UpdateBookingSerializer
 )
@@ -119,7 +120,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             serializer = BookingContactLogSerializer(logs, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        serializer = CreateBookingSerializer(
+        serializer = CreateBookingContactLogSerializer(
             data=request.data,
             context={"request": request, "booking": booking},
         )
@@ -128,7 +129,6 @@ class BookingViewSet(viewsets.ModelViewSet):
 
         response_serializer = BookingContactLogSerializer(contact_log)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-
 
 
 
