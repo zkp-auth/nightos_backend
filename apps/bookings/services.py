@@ -32,6 +32,10 @@ def _intervals_overlap(start_a, end_a, start_b, end_b):
     """
     return start_a < end_b and start_b < end_a
 
+# MVP rule:
+# a venue can host only one overlapping booking at a time.
+# This may later evolve for venues with multiple bookable spaces
+# such as separate dance floors or rooms.
 def validate_booking_conflicts(
         *,
         venue,
@@ -42,6 +46,7 @@ def validate_booking_conflicts(
         exclude_booking_id=None,
 ):
     """
+
     Validate that a booking does not conflict with existing venue or DJ bookings.
 
     Rules:
@@ -188,7 +193,7 @@ def create_booking(
 
     create_audit_log(
         user=created_by,
-        action_type=AuditLog.ActionTypes.CREATE,
+        action_type=AuditLog.ActionType.CREATE,
         target_model="Booking",
         target_id=str(booking.id),
         description="Booking created successfully.",
@@ -247,7 +252,7 @@ def update_booking(
 
     create_audit_log(
         user=updated_by,
-        action_type=AuditLog.ActionTypes.UPDATE,
+        action_type=AuditLog.ActionType.UPDATE,
         target_model="Booking",
         target_id=str(booking.id),
         description="Booking updated successfully.",
@@ -293,7 +298,7 @@ def change_booking_status(
 
     create_audit_log(
         user=changed_by,
-        action_type=AuditLog.ActionTypes.STATUS_CHANGE,
+        action_type=AuditLog.ActionType.STATUS_CHANGE,
         target_model="Booking",
         target_id=str(booking.id),
         description=f"Booking status changed from '{old_status}' to '{new_status}'.",
@@ -331,7 +336,7 @@ def create_booking_contact_log(
 
     create_audit_log(
         user=contacted_by,
-        action_type=AuditLog.ActionTypes.UPDATE,
+        action_type=AuditLog.ActionType.UPDATE,
         target_model="BookingContactLog",
         target_id=str(contact_log.id),
         description=f"Booking contact log created successfully.",
@@ -369,7 +374,7 @@ def delete_booking(
 
     create_audit_log(
         user=deleted_by,
-        action_type=AuditLog.ActionTypes.DELETE,
+        action_type=AuditLog.ActionType.DELETE,
         target_model="Booking",
         target_id=str(booking.id),
         description="Booking deleted successfully.",
